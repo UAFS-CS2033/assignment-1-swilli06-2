@@ -20,11 +20,16 @@ public class Server{
 
         //*** Application Protocol *****
         String buffer = in.readLine();
-        while(!(buffer.equals("quit"))){
-            out.println("From Server: " + buffer);
+        while(buffer != null && buffer.length()!=0){
+            System.out.println(buffer);
             buffer = in.readLine();
         }
-       
+        out.printf("HTTP/1.1 200 OK\n");
+        out.printf("Content-Length: 34\n");
+        out.printf("Content-Type: text/html\n\n");
+
+        out.printf("<h1>Welcome to the Web Server</h1>");
+
         in.close();
         out.close();
     }
