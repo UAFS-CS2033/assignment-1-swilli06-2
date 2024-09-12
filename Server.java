@@ -47,8 +47,10 @@ public class Server{
         }
         serverSocket.close();
     }
+
     public static void main(String[] args0) throws IOException{
         Server server = new Server(8080);
         server.run();
     }
+    
 }
