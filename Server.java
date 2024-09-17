@@ -15,7 +15,7 @@ public class Server{
     }
 
     private void processConnection() throws IOException{
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); //look at the file read in, and see if it exists
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),true);
 
         //*** Application Protocol *****
@@ -33,7 +33,8 @@ public class Server{
         in.close();
         out.close();
     }
-
+    //need to check http://localhost:8080/home.html to see if everything is pulled over
+    
     public void run() throws IOException{
         boolean running = true;
        
