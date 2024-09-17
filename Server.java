@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 
 public class Server{
     private ServerSocket serverSocket;
@@ -24,11 +26,22 @@ public class Server{
             System.out.println(buffer);
             buffer = in.readLine();
         }
-        out.printf("HTTP/1.1 200 OK\n");
-        out.printf("Content-Length: 34\n");
-        out.printf("Content-Type: text/html\n\n");
 
-        out.printf("<h1>Welcome to the Web Server</h1>");
+        File file = new File("/docroot/home.html"); //Reads the html
+        if (file.exists()) {
+            String content = new String(Files.readAllBytes(file.toPath()));
+
+
+            out.printf("HTTP/1.1 200 OK\n");
+            out.printf("Content-Length: %d\n", content.length()); //Takes in the exact length of the content
+            out.printf("Content-Type: text/html\n\n");
+            out.print(content);
+        } else {
+            out.printf("HTTP/1.1 404 Not Found\n");
+            out.printf("Content-Length: 0\n");
+            out.printf("Content-Type: text/html\n\n");
+        }
+
 
         in.close();
         out.close();
