@@ -1,11 +1,12 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 
 public class Server{
     private ServerSocket serverSocket;
@@ -19,27 +20,37 @@ public class Server{
     private void processConnection() throws IOException{
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); //look at the file read in, and see if it exists
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),true);
+        OutputStream output = clientSocket.getOutputStream();
 
         //*** Application Protocol *****
         String buffer = in.readLine();
-        while(buffer != null && buffer.length()!=0){
-            System.out.println(buffer);
-            buffer = in.readLine();
+        System.out.println("Buffer: " + buffer);
+        String[] tokens = buffer.split(" ");
+        String fileName = tokens[1];
+
+        if(fileName.equals("/")){
+            fileName = "/home.html"; //Uses the home.html as the base!
         }
 
-        File file = new File("/docroot/home.html"); //Reads the html
+        File file = new File("docroot" + fileName); //Reads the files
+        System.out.println(file.toString());
+        System.out.println(file.exists());
         if (file.exists()) {
-            String content = new String(Files.readAllBytes(file.toPath()));
-
-
+            
             out.printf("HTTP/1.1 200 OK\n");
-            out.printf("Content-Length: %d\n", content.length()); //Takes in the exact length of the content
-            out.printf("Content-Type: text/html\n\n");
-            out.print(content);
+            out.printf("Content-Length: %d\n", file.length()); //Takes in the exact length of the content
+            out.printf("Content-Type: %s\n\n", returnContentType(file.getName()));
+            
         } else {
             out.printf("HTTP/1.1 404 Not Found\n");
             out.printf("Content-Length: 0\n");
             out.printf("Content-Type: text/html\n\n");
+        }
+
+        FileInputStream inStream = new FileInputStream(file);
+        int line = 0;
+        while((line = inStream.read()) != -1){
+            output.write(line);
         }
 
 
@@ -47,6 +58,19 @@ public class Server{
         out.close();
     }
     //need to check http://localhost:8080/home.html to see if everything is pulled over
+
+    public String returnContentType(String file){
+        if(file.endsWith(".png")){
+            return "image/png";
+        }
+        if(file.endsWith(".css")){
+            return "text/css";
+        }
+        if(file.endsWith(".html")){
+            return "text/html";
+        }
+        return null;
+    }
     
     public void run() throws IOException{
         boolean running = true;
